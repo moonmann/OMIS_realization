@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Day Weather Forecast</title>
+    <style>
+        body {
+            background-color: #3498db;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            background-color: #2980b9;
+            padding: 10px;
+        }
+
+        section {
+            margin: 20px;
+        }
+
+        #forecast-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        #navigateButton {
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        #search-bar {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #searchButton {
+            padding: 10px;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .daily-card {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            width: 120px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Прогноз на 5 дней</h1>
+</header>
+
+<section>
+    <input type="text" id="search-bar" placeholder="Введите город">
+  <div id="button-container">
+        <a id="navigateButton" href="/">На главную страницу</a>
+      <button id="searchButton">Погода на 5 дней</button>
+  </div>
+
+    <div id="weather-info">
+        <h2></h2>
+    </div>
+    <div id="forecast-container"></div>
+</section>
+
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchButton = document.getElementById('searchButton');
+        const forecastContainer = document.getElementById('forecast-container');
+        const searchBar = document.getElementById('search-bar');
+        const weatherInfo = document.getElementById('weather-info');
+
+        searchBar.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const city = searchBar.value;
+                fetch(`/search_for_5_days?city=${city}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        weatherInfo.innerHTML = `
+                        <h2>${data.city}</h2>
+                    `;
+                        forecastContainer.innerHTML = "";
+                        data.hourly.forEach(hour => {
+                            const hourlyCard = document.createElement('div');
+                            hourlyCard.classList.add('daily-card');
+                            hourlyCard.innerHTML = `
+                                <p>${hour.time}</p>
+                                <p>Температура: ${hour.temperature}°C</p>
+                                <p>Скорость ветра: ${hour.wind_speed} м/с</p>
+                                <p>Погода: ${hour.precipitation}%</p>
+                            `;
+                            forecastContainer.appendChild(hourlyCard);
+                        });
+                    })
+                    .catch(error => console.error(error));
+            }
+        });
+
+        searchButton.addEventListener('click', function() {
+                fetch(`/forecast_5_days`)
+                    .then(response => response.json())
+                    .then(data => {
+                        weatherInfo.innerHTML = `
+                        <h2>${data.city}</h2>
+                    `;
+                        forecastContainer.innerHTML = "";
+                        data.hourly.forEach(hour => {
+                            const hourlyCard = document.createElement('div');
+                            hourlyCard.classList.add('daily-card');
+                            hourlyCard.innerHTML = `
+                                <p>${hour.time}</p>
+                                <p>Температура: ${hour.temperature}°C</p>
+                                <p>Скорость ветра: ${hour.wind_speed} м/с</p>
+                                <p>Погода: ${hour.precipitation}%</p>
+                            `;
+                            forecastContainer.appendChild(hourlyCard);
+                        });
+                    })
+                    .catch(error => console.error(error));
+        });
+    });
+</script>
+
+</body>
+</html>
